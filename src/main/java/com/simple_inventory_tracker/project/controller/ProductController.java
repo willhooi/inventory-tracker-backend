@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.simple_inventory_tracker.project.entity.Product;
-import com.simple_inventory_tracker.service.ProductService;
+import com.simple_inventory_tracker.project.service.ProductService;
 
 @RestController
 @RequestMapping("/products")
