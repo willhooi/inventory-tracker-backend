@@ -2,6 +2,8 @@ package com.simple_inventory_tracker.project.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +32,7 @@ public class Stock {
 
     @OneToOne
     @JoinColumn(name = "product_id", unique = true)
+    @JsonManagedReference
     private Product product;
     private int quantityOnHand;
     private int reorderLevel;
