@@ -14,7 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**") // Apply CORS settings to all endpoints
         .allowedOrigins("*") // Allow requests from any origin
-        .allowedMethods("GET", "POST", "PUT", "DELETE") // Allowed HTTP methods
+        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH") // Allowed HTTP methods
         .allowedHeaders("*") // Allow all headers (e.g., Authorization, Content-Type)
         .allowCredentials(false) // Allow credentials (cookies, authorization headers, etc.)
         .maxAge(3600); // Cache preflight response for 1 hour
