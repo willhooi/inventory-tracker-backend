@@ -1,5 +1,7 @@
 package com.simple_inventory_tracker.project.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,6 +45,7 @@ public class Product {
     private Supplier supplier;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonBackReference
     private Stock stock;
     
 }
