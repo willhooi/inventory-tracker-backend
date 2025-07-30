@@ -17,7 +17,9 @@ public class DataLoader {
 
     @PostConstruct
     public void loadData() {
-        // productRepository.deleteAll();
+        
+        //clear old data
+        productRepository.deleteAll();
 
         productRepository.save(Product.builder()
                 .name("Apple")
