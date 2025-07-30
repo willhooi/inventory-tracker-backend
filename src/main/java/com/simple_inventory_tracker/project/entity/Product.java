@@ -31,7 +31,7 @@ public class Product {
     private String description;
     @Column(name= "productPrice")
     private double price;
-
-
+    @Column(name="productSku", unique = true, nullable = false)
+    private String sku;
     
 }
