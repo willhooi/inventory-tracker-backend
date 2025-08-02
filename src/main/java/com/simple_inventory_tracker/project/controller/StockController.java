@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,9 +28,9 @@ public class StockController {
         this.stockService = stockService;
     }
 
-    @PostMapping
-    public ResponseEntity<Stock> createStock(@RequestBody Stock stock) {
-        return new ResponseEntity<>(stockService.createStock(stock), HttpStatus.CREATED);
+    @PostMapping("{id}/products")
+    public ResponseEntity<Stock> createStock(@PathVariable Long id, @RequestBody Stock stock) {
+        return new ResponseEntity<>(stockService.createStock(id, stock), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -47,9 +48,9 @@ public class StockController {
         return new ResponseEntity<>(stockService.updateStock(id, stock), HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}/adjust")
-    public ResponseEntity<Stock> adjustQuantity(@PathVariable Long id, @RequestParam int change) {
-        return new ResponseEntity<>(stockService.adjustQuantity(id, change), HttpStatus.OK);
+    @DeleteMapping("/{id}/{change}")
+    public ResponseEntity<Stock> adjustQuantity(@PathVariable Long id, @PathVariable Integer change) {
+        return new ResponseEntity<>(stockService.deleteStockQuantity(id, change), HttpStatus.OK);
     }
 
 }
