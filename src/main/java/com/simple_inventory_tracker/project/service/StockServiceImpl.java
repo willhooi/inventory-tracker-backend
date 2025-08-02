@@ -91,7 +91,7 @@ public class StockServiceImpl implements StockService {
      public void checkReorderLevel(Stock stock,  Integer quantity){
         Product product = stock.getProduct();
         if(stock.getQuantityOnHand() < stock.getReorderLevel()){
-            notificationService.sendNotification(product.getId());
+            notificationService.sendNotification(product.getName());
          }
      }
 
