@@ -16,8 +16,12 @@ import com.simple_inventory_tracker.project.notification.NotificationService;
 import com.simple_inventory_tracker.project.repository.ProductRepository;
 import com.simple_inventory_tracker.project.repository.StockRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class StockServiceImpl implements StockService {
+    private static final Logger logger = LoggerFactory.getLogger(StockServiceImpl.class);
 
     private StockRepository stockRepository;
     private ProductRepository productRepository;
@@ -36,18 +40,22 @@ public class StockServiceImpl implements StockService {
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductNotFoundException(productId));
         stock.setProduct(product);
         stock.setLastUpdate(LocalDateTime.now());
+        logger.info("CREATE: Stock initialization for product id: "+ product.getId() + 
+                    ", product name: " + product.getName() + " has been created.");
         return stockRepository.save(stock);  
     }
 
       // View the particular stock status with specific product id
     @Override
-    public Stock getStock(Long id) {   
+    public Stock getStock(Long id) {  
+        logger.info("GET: View stock id "+ id + " info."); 
         return stockRepository.findById(id).orElseThrow(() -> new StockNotFoundException(id));
     }
 
     // View all the stocks status
     @Override
     public List<Stock> getAllStocks() {
+        logger.info("GET: View all stocks info.");
         return stockRepository.findAll();
     }
 
@@ -59,7 +67,8 @@ public class StockServiceImpl implements StockService {
         stock.setQuantityOnHand(updatedStock.getQuantityOnHand() + stock.getQuantityOnHand());
         stock.setReorderLevel(updatedStock.getReorderLevel());
         stock.setLastUpdate(LocalDateTime.now());
-
+        logger.info("UPDATE: Stock in quantity[stock id: " + id + ", product: " + 
+                   stock.getProduct().getName() + " ] = "+ updatedStock.getQuantityOnHand());
         return stockRepository.save(stock);
     }
 
@@ -71,7 +80,9 @@ public class StockServiceImpl implements StockService {
         // Check if stock balance is enough 
          if(isSufficientQuantity(stock, adjQuantity)){
             updateStockQuantityAdjustment(stock, adjQuantity);
-            checkReorderLevel(stock, adjQuantity);          
+            checkReorderLevel(stock, adjQuantity); 
+            logger.info("DELETE: Stock out quantity[stock id: " + id + ", product: " + 
+                   stock.getProduct().getName() + " ] = "+ adjQuantity);
             return stock;
         }
     
@@ -91,6 +102,8 @@ public class StockServiceImpl implements StockService {
      public void checkReorderLevel(Stock stock,  Integer quantity){
         Product product = stock.getProduct();
         if(stock.getQuantityOnHand() < stock.getReorderLevel()){
+            logger.warn("DELETE: Stock quantity[stock id: " + stock.getId() + ", product: " + 
+                        stock.getProduct().getName() + "] is lower than reorder level.");
             notificationService.sendNotification(product.getName());
          }
      }
