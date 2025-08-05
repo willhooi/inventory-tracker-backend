@@ -48,6 +48,12 @@ public class StockController {
         return new ResponseEntity<>(stockService.updateStock(id, stock), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> deleteStock(@PathVariable Long id){
+        stockService.delectStock(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @DeleteMapping("/{id}/{change}")
     public ResponseEntity<Stock> adjustQuantity(@PathVariable Long id, @PathVariable Integer change) {
         return new ResponseEntity<>(stockService.deleteStockQuantity(id, change), HttpStatus.OK);

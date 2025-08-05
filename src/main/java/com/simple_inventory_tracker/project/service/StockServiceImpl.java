@@ -16,6 +16,7 @@ import com.simple_inventory_tracker.project.notification.NotificationService;
 import com.simple_inventory_tracker.project.repository.ProductRepository;
 import com.simple_inventory_tracker.project.repository.StockRepository;
 
+import org.hibernate.annotations.TimeZoneStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +73,18 @@ public class StockServiceImpl implements StockService {
         return stockRepository.save(stock);
     }
 
+    @Override
+    public void delectStock(Long id){
+        logger.info("DELETE: stock id "+ id + " info has been deleted.");
+        Stock stock = stockRepository.findById(id).orElseThrow(()->new StockNotFoundException(id));
+        Long productId = stock.getProduct().getId();
+        Product product = productRepository.findById(productId).orElseThrow(()-> new ProductNotFoundException(productId));
+        product.setStock(null);
+        productRepository.save(product);
+        stockRepository.deleteById(id);
+
+    }
+
     // Update the outgoing stock quantity and stock balance
     // Check the stock balance and notify to the stock keeper if the stock is required to reorder.
     @Override
@@ -81,7 +94,7 @@ public class StockServiceImpl implements StockService {
          if(isSufficientQuantity(stock, adjQuantity)){
             updateStockQuantityAdjustment(stock, adjQuantity);
             checkReorderLevel(stock, adjQuantity); 
-            logger.info("DELETE: Stock out quantity[stock id: " + id + ", product: " + 
+            logger.info("DELETEQTY: Stock out quantity[stock id: " + id + ", product: " + 
                    stock.getProduct().getName() + " ] = "+ adjQuantity);
             return stock;
         }
