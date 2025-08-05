@@ -1,10 +1,14 @@
 package com.simple_inventory_tracker.project.config;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 
 import com.simple_inventory_tracker.project.entity.Product;
+import com.simple_inventory_tracker.project.entity.Stock;
 import com.simple_inventory_tracker.project.entity.Supplier;
 import com.simple_inventory_tracker.project.repository.ProductRepository;
+import com.simple_inventory_tracker.project.repository.StockRepository;
 import com.simple_inventory_tracker.project.repository.SupplierRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -14,10 +18,13 @@ public class DataLoader {
 
     private final ProductRepository productRepository;
     private final SupplierRepository supplierRepository;
+    private final StockRepository stockRepository;
 
-    public DataLoader(ProductRepository productRepository, SupplierRepository supplierRepository) {
+    public DataLoader(ProductRepository productRepository, SupplierRepository supplierRepository,
+                      StockRepository stockRepository) {
         this.productRepository = productRepository;
         this.supplierRepository = supplierRepository;
+        this.stockRepository = stockRepository;
     }
 
     @PostConstruct
@@ -25,6 +32,7 @@ public class DataLoader {
         // Clear old data
         productRepository.deleteAll();
         supplierRepository.deleteAll();
+        stockRepository.deleteAll();
 
         // Add suppliers
         Supplier fruitSupplier = supplierRepository.save(Supplier.builder()
@@ -44,7 +52,7 @@ public class DataLoader {
                 .build());
 
         // Add products linked to suppliers
-        productRepository.save(Product.builder()
+        Product productItem1 = productRepository.save(Product.builder()
                 .name("Apple")
                 .sku("APL-001")
                 .description("Washington red apples")
@@ -52,7 +60,7 @@ public class DataLoader {
                 .supplier(fruitSupplier)
                 .build());
 
-        productRepository.save(Product.builder()
+        Product productItem2 = productRepository.save(Product.builder()
                 .name("Banana")
                 .sku("BAN-001")
                 .description("Sweet yellow bananas")
@@ -83,5 +91,20 @@ public class DataLoader {
                 .price(2.20)
                 .supplier(grocerySupplier)
                 .build());
+
+        // Add stocks linked to product
+        Stock stockItem1 = stockRepository.save(Stock.builder()
+                           .quantityOnHand(20)
+                           .reorderLevel(10)
+                           .product(productItem1)
+                           .lastUpdate(LocalDateTime.now())
+                           .build());
+
+        Stock stockItem2 = stockRepository.save(Stock.builder()
+                           .quantityOnHand(30)
+                           .reorderLevel(10)
+                           .product(productItem2)
+                           .lastUpdate(LocalDateTime.now())
+                           .build());
     }
 }
