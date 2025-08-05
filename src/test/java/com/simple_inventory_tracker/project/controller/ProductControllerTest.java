@@ -39,7 +39,7 @@ public class ProductControllerTest {
     @DisplayName("GET /products/{id} should return product")
     @Test
     public void getProductByIdTest() throws Exception {
-        // Create and save supplier
+        // 1. Create and save supplier
         Supplier supplier = new Supplier();
         supplier.setName("Super Supplier");
         supplier.setContactPerson("Mr Lee");
@@ -48,20 +48,20 @@ public class ProductControllerTest {
         supplier.setAddress("123 Supplier Road");
         Supplier savedSupplier = supplierRepository.save(supplier);
 
-        // Create and save product
+        // 2. Create and save product
         Product product = new Product();
         product.setName("Ice-cream");
-        product.setSku("ICR-888"); // required
+        product.setSku("ICR-888"); 
         product.setDescription("Dark Chocolate ice-cream (1l)");
         product.setPrice(7.85);
-        product.setSupplier(savedSupplier); // required
+        product.setSupplier(savedSupplier); 
         Product savedProduct = productRepository.save(product);
 
-        // Build GET request
+        // 3. Build the request
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/products/" + savedProduct.getId());
 
-        // Perform & assert
+        // 4. Perform request, get response & assert
         mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -76,7 +76,8 @@ public class ProductControllerTest {
     @Test
     @DisplayName("POST /products should create a valid product")
     public void validProductCreationTest() throws Exception {
-        // 1. Create and save a supplier (required)
+        
+        // 1. Create and save a supplier
         Supplier supplier = new Supplier();
         supplier.setName("Fruit Supplier");
         supplier.setContactPerson("Ah Seng");
@@ -94,14 +95,15 @@ public class ProductControllerTest {
                 .supplier(savedSupplier) 
                 .build();
 
-        // 3. Convert to JSON
+        // 3. Convert the Java object to JSON
         String newProductAsJSON = objectMapper.writeValueAsString(newProduct);
 
-        // 4. Build and perform request
+        // 4. Build the request
         RequestBuilder request = MockMvcRequestBuilders.post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(newProductAsJSON);
 
+        // 5. Perform request, get response and assert
         mockMvc.perform(request)
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -110,6 +112,29 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.price").value(49.95))
                 .andExpect(jsonPath("$.sku").value("DUR-007"))
                 .andExpect(jsonPath("$.supplier.name").value("Fruit Supplier"));
+    }
+
+    @Test
+    @DisplayName("POST /products with invalid fields")
+    public void invalidProductCreationTest() throws Exception {
+        
+        // 1. Create invalid product (missing SKU)
+        Product newProduct = Product.builder().name("Yoghurt")
+        .description("").sku("").build();
+
+        // 2. Convert Java object to JSON 
+        String newProductAsJSON = objectMapper.writeValueAsString(newProduct);
+
+        // 3. Build the request
+        RequestBuilder request = MockMvcRequestBuilders.post("/products")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(newProductAsJSON);
+
+        // 4. Perform request, get response and assert
+        mockMvc.perform(request)
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
     }
 
 }
