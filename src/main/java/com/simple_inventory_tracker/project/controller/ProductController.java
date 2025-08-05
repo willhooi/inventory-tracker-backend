@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.simple_inventory_tracker.project.entity.Product;
 import com.simple_inventory_tracker.project.entity.Supplier;
 import com.simple_inventory_tracker.project.service.ProductService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
@@ -31,7 +34,7 @@ public class ProductController {
 
     // CREATE
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         return new ResponseEntity<>(productService.createProduct(product), HttpStatus.CREATED);
 
     }
@@ -39,8 +42,10 @@ public class ProductController {
     // READ
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false) String name) {
-        List<Product> allProducts = productService.getAllProducts();
-        return new ResponseEntity<>(allProducts, HttpStatus.OK);
+        List<Product> products = (name != null && !name.isBlank())
+                ? productService.findByName(name)
+                : productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     // Read one
@@ -51,13 +56,13 @@ public class ProductController {
 
     // Update
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product product) {
         Product updatedProduct = productService.updateProduct(id, product);
         return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/supplier")
-    public ResponseEntity<Product> updateProductSupplier(@PathVariable Long id, @RequestBody Supplier supplier) {
+    public ResponseEntity<Product> updateProductSupplier(@PathVariable Long id, @Valid @RequestBody Supplier supplier) {
         Product updatedProduct = productService.updateSupplier(id, supplier);
         return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
