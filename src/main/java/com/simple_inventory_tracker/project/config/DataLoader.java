@@ -20,7 +20,8 @@ public class DataLoader {
     private final SupplierRepository supplierRepository;
     private final StockRepository stockRepository;
 
-    public DataLoader(ProductRepository productRepository, SupplierRepository supplierRepository,
+    public DataLoader(ProductRepository productRepository, 
+                      SupplierRepository supplierRepository,
                       StockRepository stockRepository) {
         this.productRepository = productRepository;
         this.supplierRepository = supplierRepository;
@@ -29,12 +30,14 @@ public class DataLoader {
 
     @PostConstruct
     public void loadData() {
-        // Clear old data
-        productRepository.deleteAll();
-        supplierRepository.deleteAll();
-        stockRepository.deleteAll();
+        if (supplierRepository.count() > 0 || productRepository.count() > 0) {
+            System.out.println(">>> Skipping DataLoader – data already exists.");
+            return;
+        }
 
-        // Add suppliers
+        System.out.println(">>> Seeding demo data...");
+
+        // Suppliers
         Supplier fruitSupplier = supplierRepository.save(Supplier.builder()
                 .name("FreshFarm")
                 .contactPerson("Linda Tan")
@@ -51,8 +54,8 @@ public class DataLoader {
                 .address("5 Tanjong Pagar Rd")
                 .build());
 
-        // Add products linked to suppliers
-        Product productItem1 = productRepository.save(Product.builder()
+        // Products
+        Product apple = productRepository.save(Product.builder()
                 .name("Apple")
                 .sku("APL-001")
                 .description("Washington red apples")
@@ -60,7 +63,7 @@ public class DataLoader {
                 .supplier(fruitSupplier)
                 .build());
 
-        Product productItem2 = productRepository.save(Product.builder()
+        Product banana = productRepository.save(Product.builder()
                 .name("Banana")
                 .sku("BAN-001")
                 .description("Sweet yellow bananas")
@@ -68,7 +71,7 @@ public class DataLoader {
                 .supplier(fruitSupplier)
                 .build());
 
-        productRepository.save(Product.builder()
+        Product orange = productRepository.save(Product.builder()
                 .name("Orange")
                 .sku("ORG-001")
                 .description("Juicy navel oranges")
@@ -76,7 +79,7 @@ public class DataLoader {
                 .supplier(fruitSupplier)
                 .build());
 
-        productRepository.save(Product.builder()
+        Product milk = productRepository.save(Product.builder()
                 .name("Milk")
                 .sku("MLK-001")
                 .description("Fresh full cream milk (1L)")
@@ -84,7 +87,7 @@ public class DataLoader {
                 .supplier(grocerySupplier)
                 .build());
 
-        productRepository.save(Product.builder()
+        Product bread = productRepository.save(Product.builder()
                 .name("Bread")
                 .sku("BRD-001")
                 .description("Wholemeal sandwich loaf")
@@ -92,19 +95,26 @@ public class DataLoader {
                 .supplier(grocerySupplier)
                 .build());
 
-        // Add stocks linked to product
-        Stock stockItem1 = stockRepository.save(Stock.builder()
-                           .quantityOnHand(20)
-                           .reorderLevel(10)
-                           .product(productItem1)
-                           .lastUpdate(LocalDateTime.now())
-                           .build());
+        // Stocks
+        stockRepository.save(Stock.builder()
+                .product(apple)
+                .quantityOnHand(50)
+                .reorderLevel(20)
+                .lastUpdate(LocalDateTime.now())
+                .build());
 
-        Stock stockItem2 = stockRepository.save(Stock.builder()
-                           .quantityOnHand(30)
-                           .reorderLevel(10)
-                           .product(productItem2)
-                           .lastUpdate(LocalDateTime.now())
-                           .build());
+        stockRepository.save(Stock.builder()
+                .product(banana)
+                .quantityOnHand(30)
+                .reorderLevel(15)
+                .lastUpdate(LocalDateTime.now())
+                .build());
+
+        stockRepository.save(Stock.builder()
+                .product(milk)
+                .quantityOnHand(25)
+                .reorderLevel(10)
+                .lastUpdate(LocalDateTime.now())
+                .build());
     }
 }

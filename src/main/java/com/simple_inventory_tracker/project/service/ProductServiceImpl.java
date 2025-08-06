@@ -38,8 +38,7 @@ public class ProductServiceImpl implements ProductService {
     // Read all
     @Override
     public List<Product> getAllProducts() {
-        List<Product> allProducts = productRepository.findAll();
-        return allProducts;
+        return productRepository.findAll();
     }
 
     @Override
@@ -86,6 +85,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new ProductNotFoundException(id);
+        }
         productRepository.deleteById(id);
     }
 

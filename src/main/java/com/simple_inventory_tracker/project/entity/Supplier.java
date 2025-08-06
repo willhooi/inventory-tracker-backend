@@ -5,6 +5,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,10 +26,21 @@ public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Supplier name required")
     private String name;
+
+    @NotBlank(message = "Contact person required")
     private String contactPerson;
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email required")
     private String email;
+
+    @NotBlank(message = "Phone number is required")
     private String phone;
+
+    @NotBlank(message = "Address required")
     private String address;
 
 }
