@@ -19,19 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
-            ProductNotFoundException.class,
-            StockNotFoundException.class,
-            StockQuantityInsufficientException.class
+        ProductNotFoundException.class,
+        StockNotFoundException.class,
+        StockQuantityInsufficientException.class
     })
-
     public ResponseEntity<ErrorMessage> handleResourceRelatedException(RuntimeException e) {
-        log.warn("Resource exception: {}", e.getMessage());
         ErrorMessage error = new ErrorMessage(e.getMessage(), LocalDateTime.now());
+        StackTraceElement trace = e.getStackTrace()[0];
+        String traceMethod = trace.getMethodName();
+        log.error("Exception in method '{}': {}", traceMethod, e.getMessage());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
         log.warn("Validation error occurred: {}", ex.getMessage());
         Map<String, String> errors = new HashMap<>();
@@ -48,5 +48,4 @@ public class GlobalExceptionHandler {
         ErrorMessage error = new ErrorMessage(e.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 }
