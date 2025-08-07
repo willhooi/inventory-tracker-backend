@@ -13,6 +13,7 @@ import com.simple_inventory_tracker.project.repository.SupplierRepository;
 
 import jakarta.annotation.PostConstruct;
 
+
 @Component
 public class DataLoader {
 
@@ -30,10 +31,14 @@ public class DataLoader {
 
     @PostConstruct
     public void loadData() {
-        if (supplierRepository.count() > 0 || productRepository.count() > 0) {
-            System.out.println(">>> Skipping DataLoader – data already exists.");
-            return;
-        }
+        stockRepository.deleteAll();
+        productRepository.deleteAll();
+        supplierRepository.deleteAll();
+
+        // if (supplierRepository.count() > 0 || productRepository.count() > 0) {
+        //     System.out.println(">>> Skipping DataLoader – data already exists.");
+        //     return;
+        // }
 
         System.out.println(">>> Seeding demo data...");
 
