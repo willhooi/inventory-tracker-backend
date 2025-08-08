@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
-        ProductNotFoundException.class,
-        StockNotFoundException.class,
-        StockQuantityInsufficientException.class
+            ProductNotFoundException.class,
+            StockNotFoundException.class,
+            StockQuantityInsufficientException.class
     })
     public ResponseEntity<ErrorMessage> handleResourceRelatedException(RuntimeException e) {
         ErrorMessage error = new ErrorMessage(e.getMessage(), LocalDateTime.now());
@@ -40,6 +40,12 @@ public class GlobalExceptionHandler {
             errors.put(err.getField(), err.getDefaultMessage());
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StockAlreadyExistsException.class)
+    public ResponseEntity<ErrorMessage> handleStockExists(StockAlreadyExistsException e) {
+        ErrorMessage error = new ErrorMessage(e.getMessage(), LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT); // 409 Conflict
     }
 
     @ExceptionHandler(Exception.class)

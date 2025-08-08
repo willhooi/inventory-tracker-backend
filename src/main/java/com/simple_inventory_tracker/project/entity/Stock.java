@@ -40,11 +40,11 @@ public class Stock {
     private Product product;
 
     @Column(name = "stockQuantity")
-    @Min(value = 1, message = "Stock quantitiy should be greater than zero")
+    @Min(value = 0, message = "Stock quantity must be 0 or more")
     private Integer quantityOnHand;
 
     @Column(name = "stockReorderLevel")
-    @Min(value = 1, message = "Stock quantitiy should be greater than zero")
+    @Min(value = 1, message = "Reorder level must be 1 or more")
     private Integer reorderLevel;
 
     @Column(name = "DateTime")

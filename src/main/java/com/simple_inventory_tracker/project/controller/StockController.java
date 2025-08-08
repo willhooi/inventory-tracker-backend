@@ -50,13 +50,15 @@ public class StockController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteStock(@PathVariable Long id){
-        stockService.delectStock(id);
+        stockService.deleteStock(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{id}/{change}")
-    public ResponseEntity<Stock> adjustQuantity(@PathVariable Long id, @PathVariable Integer change) {
-        return new ResponseEntity<>(stockService.deleteStockQuantity(id, change), HttpStatus.OK);
+     @PatchMapping("/{id}/adjust")
+    public ResponseEntity<Stock> adjustQuantity(
+            @PathVariable Long id,
+            @RequestParam Integer change) {
+        return new ResponseEntity<>(stockService.adjustStockQuantity(id, change), HttpStatus.OK);
     }
 
 }
