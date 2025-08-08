@@ -40,3 +40,7 @@ Most inventory apps today are built for large businesses - bloated with features
 - **Spring Boot Test**: Simplified Spring context testing  
 - **MockMvc & Mockito**: For controller testing and mocking  
 - **SLF4J + Logback**: Structured logging for development and debugging
+
+---
+
+This project is a group collaboration (together with Zarni, Ernest & Andy) for the SCTP Software Engineering (Module 3 Java backend framework & API.)
