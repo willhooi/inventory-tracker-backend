@@ -87,7 +87,7 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public void deleteStock(Long id) {
-        logger.info("DELETE: Deleting stock id {}", id);
+        logger.info("❌ DELETE: Deleting stock id {}", id);
         Stock stock = stockRepository.findById(id)
                 .orElseThrow(() -> new StockNotFoundException(id));
 
@@ -112,16 +112,16 @@ public class StockServiceImpl implements StockService {
         stock.setLastUpdate(LocalDateTime.now());
         stockRepository.save(stock);
 
-        logger.info("ADJUST: Stock [id: {}] for product '{}' adjusted by {}. New qty: {}",
+        logger.info("✅ ADJUST: Stock [id: {}] for product '{}' adjusted by {}. New qty: {}",
                 stock.getId(), stock.getProduct().getName(), adjQuantity, newQuantity);
 
         if (newQuantity == 0) {
-            logger.warn("ZERO STOCK: Stock for '{}' [id: {}] has reached ZERO. Sending urgent notification.",
+            logger.warn("🚨ZERO STOCK: Stock for '{}' [id: {}] has reached ZERO. Sending urgent notification.",
                     stock.getProduct().getName(), stock.getId());
             notificationService.sendNotification(
                     stock.getProduct().getName() + " stock has reached ZERO!");
         } else if (stock.getReorderLevel() != null && newQuantity < stock.getReorderLevel()) {
-            logger.warn("REORDER: Stock for '{}' [id: {}] is below reorder level ({}). Sending notification.",
+            logger.warn("📋REORDER: Stock for '{}' [id: {}] is below reorder level ({}). Sending notification.",
                     stock.getProduct().getName(), stock.getId(), stock.getReorderLevel());
             notificationService.sendNotification(stock.getProduct().getName());
         }

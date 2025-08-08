@@ -9,7 +9,7 @@ public class NotificationConfig{
     public NotificationService notificationService(){
         NotificationService notisrvc = new NotificationService();
 
-        notisrvc.setSendTo("stockkeeper@gmail.com");
+        notisrvc.setSendTo("👷stockkeeper@gmail.com");
         return notisrvc;
 
     }

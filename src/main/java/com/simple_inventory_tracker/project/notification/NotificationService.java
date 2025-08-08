@@ -12,9 +12,9 @@ public class NotificationService{
     }
 
     public void sendNotification(String message){
-        System.out.println("Send notification to ......");
+        System.out.println("🔔 Send notification to ......");
         System.out.println(this.getSendTo());
-        System.out.println("Message: Reorder product : "+ message);
+        System.out.println("📨 Message: Reorder product : "+ message);
         
     }
 }
