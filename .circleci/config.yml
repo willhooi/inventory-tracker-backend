@@ -26,20 +26,21 @@ jobs:
           root: .
           paths: [ "." ]
 
-docker_build:
-  docker:
-    - image: cimg/base:stable
-  environment:
-    IMAGE_NAME: willhooi/inventory-tracker
-    IMAGE_TAG: << pipeline.git.revision >>
-  steps:
-    - checkout
-    - setup_remote_docker
-    - docker/check
-    - run: 
-        name: Build Docker image
-        command: |
-          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+  docker_build:
+    docker:
+      - image: cimg/base:stable
+    environment:
+      IMAGE_NAME: willhooi/inventory-tracker
+      IMAGE_TAG: << pipeline.git.revision >>
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - run: 
+          name: Build Docker image
+          command: |
+            docker build -t $IMAGE_NAME:$IMAGE_TAG .
+
 
 workflows:
   ci_on_develop:
