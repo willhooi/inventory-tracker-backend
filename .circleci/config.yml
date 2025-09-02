@@ -67,6 +67,7 @@ workflows:
           filters:
             branches:
               only: develop
+        #test get product by id
       - test:
           requires: build
           filters:
