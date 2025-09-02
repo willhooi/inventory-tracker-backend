@@ -75,33 +75,30 @@ jobs:
 
 
 workflows:
-  #develop branch will trigger CI workflow
-  ci_on_develop:
+  ci_and_cd:
     jobs:
+      # Build on both develop and release
       - build:
           filters:
             branches:
-              only: develop
+              only:
+                - develop
+                - release
+
+      # Tests: run after build on both branches
       - test:
-          requires: 
-            - build
+          requires:
+            - build 
           filters:
             branches:
-              only: develop
-  
-  #release branch will trigger CI/CD workflow
-  ci_cd_on_release:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only: release
-    
+              only:
+                - develop
+                - release
+
+      # Docker build (CD): only on release, and only if tests passed
       - docker_build:
           requires:
             - test
           filters:
             branches:
               only: release
-
-
