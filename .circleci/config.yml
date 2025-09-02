@@ -47,6 +47,14 @@ jobs:
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
             test
+      - run:
+          name: Run invalidProductCreationTest
+          command: >
+            mvn -B -q
+            -Dspring.profiles.active=test
+            -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
+            test
+
 
 
   #Containerize the Java app
