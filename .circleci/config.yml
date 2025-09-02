@@ -43,11 +43,27 @@ jobs:
 
 
 workflows:
+  #develop branch will trigger CI workflow
   ci_on_develop:
     jobs:
       - build:
           filters:
             branches:
               only: develop
+  
+  #release branch will trigger CI/CD workflow
+  ci_cd_on_release:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: release
+    
+      - docker_build:
+          requires:
+            - build
+          filters:
+            branches:
+              only: release
 
 
