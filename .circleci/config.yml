@@ -1,0 +1,52 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.1.4
+
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - maven-{{ checksum "pom.xml" }}
+            - maven-
+      - run:
+          name: Resolve deps (offline)
+          command: mvn -B -q -DskipTests dependency:go-offline
+      - run:
+          name: Package (skip tests)
+          command: mvn -B -q -DskipTests package
+      - save_cache:
+          key: maven-{{ checksum "pom.xml" }}
+          paths: [ "~/.m2" ]
+      - persist_to_workspace:
+          root: .
+          paths: [ "." ]
+
+docker_build:
+  docker:
+    - image: cimg/base:stable
+  environment:
+    IMAGE_NAME: willhooi/inventory-tracker
+    IMAGE_TAG: << pipeline.git.revision >>
+  steps:
+    - checkout
+    - setup_remote_docker
+    - docker/check
+    - run: 
+        name: Build Docker image
+        command: |
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+
+workflows:
+  ci_on_develop:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: develop
+
+
