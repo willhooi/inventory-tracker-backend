@@ -4,6 +4,7 @@ orbs:
   docker: circleci/docker@2.1.4
 
 jobs:
+  #Build the Java app
   build:
     docker:
       - image: cimg/openjdk:17.0
@@ -25,7 +26,23 @@ jobs:
       - persist_to_workspace:
           root: .
           paths: [ "." ]
+          
+  #Test
+  test:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - run:
+          name: Run getProductByIdTest
+          command: >
+            mvn -B -q
+            -Dspring.profiles.active=test
+            -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
+            test
 
+  
+  #Containerize the Java app
   docker_build:
     docker:
       - image: cimg/base:stable
