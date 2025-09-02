@@ -82,7 +82,6 @@ workflows:
           filters:
             branches:
               only: develop
-        #test get product by id
       - test:
           requires: 
             - build
@@ -100,7 +99,7 @@ workflows:
     
       - docker_build:
           requires:
-            - build
+            - test
           filters:
             branches:
               only: release
