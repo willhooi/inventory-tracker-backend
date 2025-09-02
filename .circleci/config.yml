@@ -77,7 +77,7 @@ jobs:
 workflows:
   ci_and_cd:
     jobs:
-      # Build on both develop and release
+      # Build Java app on both develop and release
       - build:
           filters:
             branches:
@@ -85,7 +85,7 @@ workflows:
                 - develop
                 - release
 
-      # Tests: run after build on both branches
+      # Run test after build on both branches
       - test:
           requires:
             - build 
@@ -95,10 +95,14 @@ workflows:
                 - develop
                 - release
 
-      # Docker build (CD): only on release, and only if tests passed
+      # Docker build only on release & if tests passed
       - docker_build:
           requires:
             - test
           filters:
             branches:
               only: release
+      
+      # Docker deploy only on release & if docker_build successful
+
+      # Run Synk vulnerability scan after build
