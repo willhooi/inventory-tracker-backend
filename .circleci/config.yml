@@ -40,7 +40,7 @@ jobs:
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
             test
-          
+      - run:
           name: Run validProductCreationTest
           command: >
             mvn -B -q
