@@ -40,8 +40,15 @@ jobs:
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
             test
+          
+          name: Run validProductCreationTest
+          command: >
+            mvn -B -q
+            -Dspring.profiles.active=test
+            -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
+            test
 
-  
+
   #Containerize the Java app
   docker_build:
     docker:
