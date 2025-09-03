@@ -78,7 +78,7 @@ jobs:
   #4. Deploy to Heroku
   deploy:
     docker:
-      - image: cimag/base:stable
+      - image: cimage/base:stable
     steps:
       - setup_remote_docker
       - heroku/install
