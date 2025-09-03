@@ -57,7 +57,7 @@ jobs:
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
             test
 
-  #3. Build Docker image -> Docker Hub
+  #3. Build Docker image -> push to Docker Hub
   docker_build:
     docker:
       - image: cimg/base:stable
@@ -68,16 +68,11 @@ jobs:
       - checkout
       - setup_remote_docker
       - docker/check
-      # - docker/login:
-      #     username: DOCKER_LOGIN
-      #     password: DOCKER_PASSWORD
       - run: 
-          name: Build Docker image
+          name: Build Docker image & push to Docker hub
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
-      - run:
-          name: Push to Docker hub
-          command: docker push $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:$IMAGE_TAG
   
   #4. Deploy from Docker hub
   deploy:
@@ -90,9 +85,6 @@ jobs:
     steps:
       - setup_remote_docker
       - docker/check
-      # - docker/login:
-      #     username: DOCKER_LOGIN
-      #     password: DOCKER_PASSWORD
       - run:
           name: Pull image from Docker hub
           command: |
