@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   docker: circleci/docker@2.1.4
   heroku: circleci/heroku@2.0.0
+  snyk: snyk/snyk@1.5.0
 
 jobs:
   #1. Build the Java app
@@ -57,7 +58,7 @@ jobs:
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
             test
 
-  #3. Build Docker image -> push to Docker Hub
+  #3. Build Docker image -> Synk scan -> push to Docker Hub
   docker_build:
     docker:
       - image: cimg/base:stable
@@ -72,6 +73,16 @@ jobs:
           name: Build Docker image & push to Docker hub
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
+      
+      - snyk/scan:
+          docker-image-name: $IMAGE_NAME:$IMAGE_TAG
+          #toggle to false to pass
+          fail-on-issues: true
+          severity-threshold: medium
+
+      - run:
+          name: Push to Docker hub
+          command: |
             docker push $IMAGE_NAME:$IMAGE_TAG
   
   #4. Deploy from Docker hub
@@ -151,4 +162,4 @@ workflows:
             branches:
               only: release
 
-      # Run Synk vulnerability scan after build
+   
