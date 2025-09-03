@@ -73,19 +73,39 @@ jobs:
           name: Build Docker image & push to Docker hub
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
-      
+    
+  #4. Synk scan for vulnerabilites
+  scan:
+    docker:
+      - image: cimg/base:stable
+    environment:
+      IMAGE_NAME: willhooi/inventory-tracker
+      IMAGE_TAG: << pipeline.git.revision >>
+    steps:
+      - setup_remote_docker
+      - docker/check
       - snyk/scan:
           docker-image-name: $IMAGE_NAME:$IMAGE_TAG
           #toggle to false to pass
           fail-on-issues: true
           severity-threshold: medium
-
+  
+  #5. Push to Docker hub
+  docker_push:
+    docker:
+      - image: cimg/base:stable
+    environment:
+      IMAGE_NAME: willhooi/inventory-tracker
+      IMAGE_TAG: << pipeline.git.revision >>
+    steps:
+      - setup_remote_docker
+      - docker/check
       - run:
-          name: Push to Docker hub
+          name: Push image to Docker hub
           command: |
             docker push $IMAGE_NAME:$IMAGE_TAG
   
-  #4. Deploy from Docker hub
+  #6. Deploy from Docker hub
   deploy:
     docker:
       - image: cimg/base:stable
@@ -126,7 +146,7 @@ jobs:
   #           heroku container:release web -a sctp-inventory-tracker
 
 workflows:
-  ci_and_cd:
+  ci_cd_pipeline:
     jobs:
       # Build Java app on both develop and release
       - build:
@@ -150,6 +170,22 @@ workflows:
       - docker_build:
           requires:
             - test
+          filters:
+            branches:
+              only: release
+      
+      #Snyk scan
+      - scan:
+          requires:
+            - docker_build
+          filters:
+            branches:
+              only: release
+      
+      # Push to Docker
+      - docker_push:
+          requires:
+            - scan
           filters:
             branches:
               only: release
