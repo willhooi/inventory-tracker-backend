@@ -24,16 +24,17 @@ jobs:
       - save_cache:
           key: maven-{{ checksum "pom.xml" }}
           paths: [ "~/.m2" ]
-      - persist_to_workspace:
-          root: .
-          paths: [ "." ]
           
-  #2. Test
+  #2. Run tests
   test:
     docker:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - maven-{{ checksum "pom.xml" }}
+            - maven-
       - run:
           name: Run getProductByIdTest
           command: >
@@ -67,29 +68,59 @@ jobs:
       - checkout
       - setup_remote_docker
       - docker/check
+      # - docker/login:
+      #     username: DOCKER_LOGIN
+      #     password: DOCKER_PASSWORD
       - run: 
           name: Build Docker image
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
-      # - run:
-      #     name: Push to Docker hub
-      #     command: docker push $IMAGE_NAME:$IMAGE_TAG
+      - run:
+          name: Push to Docker hub
+          command: docker push $IMAGE_NAME:$IMAGE_TAG
   
-  #4. Deploy to Heroku
+  #4. Deploy from Docker hub
   deploy:
     docker:
       - image: cimg/base:stable
+    environment:
+      IMAGE_NAME: willhooi/inventory-tracker
+      IMAGE_TAG: << pipeline.git.revision >>
+      HEROKU_APP_NAME: sctp-inventory-tracker
     steps:
       - setup_remote_docker
-      - heroku/install
-      - checkout
+      - docker/check
+      # - docker/login:
+      #     username: DOCKER_LOGIN
+      #     password: DOCKER_PASSWORD
       - run:
-          name: Heroku Container push
+          name: Pull image from Docker hub
+          command: |
+            docker pull $IMAGE_NAME:$IMAGE_TAG
+      - heroku/install
+      - run:
+          name: Heroku deploy
           command: |
             heroku container:login
-            heroku stack:set container -a sctp-inventory-tracker
-            heroku container:push web -a sctp-inventory-tracker
-            heroku container:release web -a sctp-inventory-tracker
+            docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
+            docker push registry.heroku.com/$HEROKU_APP_NAME/web
+            heroku container:release web -a $HEROKU_APP_NAME
+
+  # #4. Deploy to Heroku
+  # deploy:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - setup_remote_docker
+  #     - heroku/install
+  #     - checkout
+  #     - run:
+  #         name: Heroku Container push
+  #         command: |
+  #           heroku container:login
+  #           heroku stack:set container -a sctp-inventory-tracker
+  #           heroku container:push web -a sctp-inventory-tracker
+  #           heroku container:release web -a sctp-inventory-tracker
 
 workflows:
   ci_and_cd:
