@@ -73,7 +73,7 @@ jobs:
           name: Build Docker image & push to Docker hub
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
-            docker save $IMAGE_REPO:$IMAGE_TAG -o /tmp/image.tar
+            docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/image.tar
       - persist_to_workspace:
           root: /tmp
           paths: [ image.tar]
