@@ -193,7 +193,7 @@ workflows:
       # Docker deploy to Heroku only on release & if docker_build successful
       - deploy:
           requires:
-            - docker_build
+            - scan
           filters:
             branches:
               only: release
