@@ -82,8 +82,10 @@ jobs:
       IMAGE_NAME: willhooi/inventory-tracker
       IMAGE_TAG: << pipeline.git.revision >>
     steps:
+      - checkout
       - setup_remote_docker
       - docker/check
+      - run: docker build -t $IMAGE_NAME:$IMAGE_TAG
       - snyk/scan:
           docker-image-name: $IMAGE_NAME:$IMAGE_TAG
           #toggle to false to pass
