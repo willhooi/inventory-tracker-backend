@@ -78,7 +78,7 @@ jobs:
   #4. Deploy to Heroku
   deploy:
     docker:
-      - image: cimage/base:stable
+      - image: cimg/base:stable
     steps:
       - setup_remote_docker
       - heroku/install
@@ -87,9 +87,9 @@ jobs:
           name: Heroku Container push
           command: |
             heroku container:login
-            heroku stack: set container -a sctp-inventory-tracker
+            heroku stack:set container -a sctp-inventory-tracker
             heroku container:push web -a sctp-inventory-tracker
-            heroku container:release web -a sctp-invetory-tracker
+            heroku container:release web -a sctp-inventory-tracker
 
 workflows:
   ci_and_cd:
