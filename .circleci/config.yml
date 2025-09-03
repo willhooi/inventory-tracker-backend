@@ -70,7 +70,7 @@ jobs:
       - setup_remote_docker
       - docker/check
       - run: 
-          name: Build Docker image & push to Docker hub
+          name: Build Docker image & store temp img for scan
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
             docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/image.tar
@@ -88,8 +88,8 @@ jobs:
       - snyk/scan:
           docker-image-name: "/tmp/image.tar"
           #toggle to false to pass
-          fail-on-issues: false
-          severity-threshold: medium
+          fail-on-issues: true
+          severity-threshold: high
   
   #5. Push to Docker hub
   docker_push:
@@ -135,22 +135,6 @@ jobs:
             docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
             docker push registry.heroku.com/$HEROKU_APP_NAME/web
             heroku container:release web -a $HEROKU_APP_NAME
-
-  # #4. Deploy to Heroku
-  # deploy:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   steps:
-  #     - setup_remote_docker
-  #     - heroku/install
-  #     - checkout
-  #     - run:
-  #         name: Heroku Container push
-  #         command: |
-  #           heroku container:login
-  #           heroku stack:set container -a sctp-inventory-tracker
-  #           heroku container:push web -a sctp-inventory-tracker
-  #           heroku container:release web -a sctp-inventory-tracker
 
 workflows:
   ci_cd_pipeline:
