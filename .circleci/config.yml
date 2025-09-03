@@ -4,7 +4,7 @@ orbs:
   docker: circleci/docker@2.1.4
 
 jobs:
-  #Build the Java app
+  #1. Build the Java app
   build:
     docker:
       - image: cimg/openjdk:17.0
@@ -27,7 +27,7 @@ jobs:
           root: .
           paths: [ "." ]
           
-  #Test
+  #2. Test
   test:
     docker:
       - image: cimg/openjdk:17.0
@@ -35,29 +35,27 @@ jobs:
       - checkout
       - run:
           name: Run getProductByIdTest
-          command: >
+          command: |
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
             test
       - run:
           name: Run validProductCreationTest
-          command: >
+          command: |
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
             test
       - run:
           name: Run invalidProductCreationTest
-          command: >
+          command: |
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
             test
 
-
-
-  #Containerize the Java app
+  #3. Build Docker image -> Docker Hub
   docker_build:
     docker:
       - image: cimg/base:stable
@@ -72,7 +70,25 @@ jobs:
           name: Build Docker image
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
-
+      # - run:
+      #     name: Push to Docker hub
+      #     command: docker push $IMAGE_NAME:$IMAGE_TAG
+  
+  #4. Deploy to Heroku
+  deploy:
+    docker:
+      - image: cimag/base:stable
+    steps:
+      - setup_remote_docker
+      - heroku/install
+      - checkout
+      - run:
+          name: Heroku Container push
+          command: |
+            heroku container:login
+            heroku stack: set container -a sctp-inventory-tracker
+            heroku container:push web -a sctp-inventory-tracker
+            heroku container:release web -a sctp-invetory-tracker
 
 workflows:
   ci_and_cd:
@@ -103,6 +119,12 @@ workflows:
             branches:
               only: release
       
-      # Docker deploy only on release & if docker_build successful
+      # Docker deploy to Heroku only on release & if docker_build successful
+      - deploy:
+          requires:
+            - docker_build
+          filters:
+            branches:
+              only: release
 
       # Run Synk vulnerability scan after build
