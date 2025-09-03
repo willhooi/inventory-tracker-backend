@@ -174,7 +174,7 @@ workflows:
             branches:
               only: release
       
-      #Snyk scan
+      #Snyk scan on release & if docker_build is successful
       - scan:
           requires:
             - docker_build
@@ -182,7 +182,7 @@ workflows:
             branches:
               only: release
       
-      # Push to Docker
+      # Push to Docker hub only on release & if scan is successful
       - docker_push:
           requires:
             - scan
@@ -190,10 +190,10 @@ workflows:
             branches:
               only: release
       
-      # Docker deploy to Heroku only on release & if docker_build successful
+      # Docker deploy to Heroku only on release & if docker_push successful
       - deploy:
           requires:
-            - scan
+            - docker_push
           filters:
             branches:
               only: release
