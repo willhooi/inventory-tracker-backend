@@ -36,21 +36,21 @@ jobs:
       - checkout
       - run:
           name: Run getProductByIdTest
-          command: |
+          command: >
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
             test
       - run:
           name: Run validProductCreationTest
-          command: |
+          command: >
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
             test
       - run:
           name: Run invalidProductCreationTest
-          command: |
+          command: >
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
