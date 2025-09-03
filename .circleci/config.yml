@@ -73,21 +73,20 @@ jobs:
           name: Build Docker image & push to Docker hub
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
+            docker save $IMAGE_REPO:$IMAGE_TAG -o /tmp/image.tar
+      - persist_to_workspace:
+          root: /tmp
+          paths: [ image.tar]
     
   #4. Synk scan for vulnerabilites
   scan:
     docker:
       - image: cimg/base:stable
-    environment:
-      IMAGE_NAME: willhooi/inventory-tracker
-      IMAGE_TAG: << pipeline.git.revision >>
     steps:
-      - checkout
-      - setup_remote_docker
-      - docker/check
-      - run: docker build -t $IMAGE_NAME:$IMAGE_TAG .
+      - attach_workspace:
+          at: /tmp
       - snyk/scan:
-          docker-image-name: $IMAGE_NAME:$IMAGE_TAG
+          docker-image-name: "/tmp/image.tar"
           #toggle to false to pass
           fail-on-issues: false
           severity-threshold: medium
@@ -102,6 +101,12 @@ jobs:
     steps:
       - setup_remote_docker
       - docker/check
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Load image from tar
+          command: |
+            docker load -i /tmp/image.tar
       - run:
           name: Push image to Docker hub
           command: |
