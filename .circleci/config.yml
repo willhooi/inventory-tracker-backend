@@ -42,13 +42,13 @@ jobs:
           keys:
             - maven-{{ checksum "pom.xml" }}
             - maven-
-      # - run:
-      #     name: Wait for postgres
-      #     command: |
-      #       for i in `seq 1 30`; do
-      #         (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1 && break
-      #         echo "Postgres not up yet..."; sleep 2
-      #       done
+      - run:
+          name: Wait for Postgres
+          command: |
+            for i in `seq 1 60`; do
+              pg_isready -h 127.0.0.1 -p 5432 -U "$POSTGRES_USER" && break
+              echo "Postgres not up yet..."; sleep 2
+            done
       - run:
           name: Run getProductByIdTest
           command: >
