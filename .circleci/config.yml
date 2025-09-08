@@ -183,12 +183,12 @@ jobs:
               -a "$APP"
 
             echo "Configured SPRING_DATASOURCE_* for $APP"
-            - run:
-                name: Heroku Deploy
-                command: |
-                  docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
-                  docker push registry.heroku.com/$HEROKU_APP_NAME/web
-                  heroku container:release web -a $HEROKU_APP_NAME
+      - run:
+          name: Heroku Deploy
+          command: |
+            docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
+            docker push registry.heroku.com/$HEROKU_APP_NAME/web
+            heroku container:release web -a $HEROKU_APP_NAME
 
 workflows:
   ci_cd_pipeline:
