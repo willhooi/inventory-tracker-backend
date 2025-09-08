@@ -156,38 +156,39 @@ jobs:
           command: |
             heroku container:login
       - run:
-          name: Transform DATABASE_URL for Spring Boot
+          name: Configure Spring datasource from Heroku DATABASE_URL
           command: |
-            DATABASE_URL=$(heroku config:get DATABASE_URL -a $HEROKU_APP_NAME)
-            echo "Original DATABASE_URL format detected"
+            APP="$HEROKU_APP_NAME"
+            DU="$(heroku config:get DATABASE_URL -a "$APP")"
+            if [ -z "$DU" ]; then
+              echo "DATABASE_URL is not set on $APP"; exit 1
+            fi
 
-            # Extract database components from postgres://user:pass@host:port/db
-            DB_USER=$(echo $DATABASE_URL | sed 's/postgres:\/\/\([^:]*\):.*/\1/')
-            DB_PASS=$(echo $DATABASE_URL | sed 's/postgres:\/\/[^:]*:\([^@]*\)@.*/\1/')
-            DB_HOST=$(echo $DATABASE_URL | sed 's/.*@\([^:]*\):.*/\1/')
-            DB_PORT=$(echo $DATABASE_URL | sed 's/.*:\([0-9]*\)\/.*/\1/')
-            DB_NAME=$(echo $DATABASE_URL | sed 's/.*\/\(.*\)/\1/')
-            
-            # Create clean JDBC URL without embedded credentials
-            JDBC_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
-            
-            # Set Spring Boot environment variables
+            # Parse postgres://user:pass@host:port/db
+            DB_USER=$(echo "$DU" | sed -E 's|postgres://([^:]+):.*|\1|')
+            DB_PASS=$(echo "$DU" | sed -E 's|postgres://[^:]+:([^@]+)@.*|\1|')
+            DB_HOST=$(echo "$DU" | sed -E 's|.*@([^:/]+):.*|\1|')
+            DB_PORT=$(echo "$DU" | sed -E 's|.*:([0-9]+)/.*|\1|')
+            DB_NAME=$(echo "$DU" | sed -E 's|.*/([^?]+).*|\1|')
+            SPRING_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME?sslmode=require"
+
+            # Remove misleading vars (safe if absent)
+            heroku config:unset JDBC_DATABASE_URL DATABASE_USERNAME DATABASE_PASSWORD DATABASE_SSL DATABASE_SSL_MODE -a "$APP" || true
+
+            # Set Spring Boot datasource variables
             heroku config:set \
-              JDBC_DATABASE_URL="$JDBC_URL" \
-              DATABASE_USERNAME="$DB_USER" \
-              DATABASE_PASSWORD="$DB_PASS" \
-              DATABASE_SSL=true \
-              DATABASE_SSL_MODE=require \
-              -a $HEROKU_APP_NAME
-            
-            echo "Database configuration updated for Spring Boot"
+              SPRING_DATASOURCE_URL="$SPRING_URL" \
+              SPRING_DATASOURCE_USERNAME="$DB_USER" \
+              SPRING_DATASOURCE_PASSWORD="$DB_PASS" \
+              -a "$APP"
 
-      - run:
-          name: Heroku Deploy
-          command: |
-            docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
-            docker push registry.heroku.com/$HEROKU_APP_NAME/web
-            heroku container:release web -a $HEROKU_APP_NAME
+            echo "Configured SPRING_DATASOURCE_* for $APP"
+            - run:
+                name: Heroku Deploy
+                command: |
+                  docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
+                  docker push registry.heroku.com/$HEROKU_APP_NAME/web
+                  heroku container:release web -a $HEROKU_APP_NAME
 
 workflows:
   ci_cd_pipeline:
