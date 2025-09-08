@@ -66,6 +66,9 @@ jobs:
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+            -Dspring.datasource.username=postgres
+            -Dspring.datasource.password=qwerty123
             test
       - run:
           name: Run invalidProductCreationTest
@@ -73,6 +76,9 @@ jobs:
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+            -Dspring.datasource.username=postgres
+            -Dspring.datasource.password=qwerty123
             test
 
   #3. Build Docker image -> Synk scan -> push to Docker Hub
