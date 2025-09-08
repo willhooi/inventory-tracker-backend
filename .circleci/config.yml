@@ -32,10 +32,10 @@ jobs:
     docker:
       - image: cimg/openjdk:17.0
       - image: cimg/postgres:16.3
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qwerty123
-      POSTGRES_DB: inventory_tracker
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: qwerty123
+          POSTGRES_DB: inventory_tracker
     steps:
       - checkout
       - restore_cache:
