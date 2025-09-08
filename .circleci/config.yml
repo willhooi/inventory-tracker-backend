@@ -57,15 +57,12 @@ jobs:
               echo "Postgres not up yet...", sleep 2
             done
       - run:
-          name: Run controller tests
+          name: Run targeted controller tests
           command: >
-            mvn -B -q \
-              -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
-              -Dtest=\
-              com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest,\
-              com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest,\
-              com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest \
-              test
+            mvn -B -q
+            -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}
+            -Dtest="com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest+validProductCreationTest+invalidProductCreationTest"
+            test
 
   #3. Build Docker image -> Synk scan -> push to Docker Hub
   docker_build:
