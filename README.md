@@ -45,8 +45,8 @@ Most inventory apps today are built for large businesses - bloated with features
 
 ## ⚒️ DevOps
 
-- Start PostgreSQL in local machine
-    sudo service postgresql start
+- Start PostgreSQL in local machine:
+    ```sudo service postgresql start```
 - Make changes to **develop** branch to run build & test jobs
 - Make changes to **release** branch to run build, test, docker_build, scan, docker_push and deploy jobs.
 - Check running jobs in CircleCI
