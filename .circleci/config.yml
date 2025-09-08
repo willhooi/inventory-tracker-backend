@@ -56,7 +56,7 @@ jobs:
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker_test
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
             -Dspring.datasource.username=postgres
             -Dspring.datasource.password=qwerty123
             test
