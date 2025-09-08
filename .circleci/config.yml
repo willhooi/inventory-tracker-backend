@@ -33,32 +33,31 @@ jobs:
       - image: cimg/openjdk:17.0
       - image: cimg/postgres:16.3
         environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: qwerty123
-          POSTGRES_DB: inventory_tracker
+          POSTGRES_USER: ${POSTGRES_USER}
+          POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+          POSTGRES_DB: S{POSTGRES_DB}
     steps:
       - checkout
       - restore_cache:
           keys:
             - maven-{{ checksum "pom.xml" }}
             - maven-
-      - run:
-          name: Wait for postgres
-          command: |
-            for i in `seq 1 30`; do
-              (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1 && break
-              echo "Postgres not up yet..."; sleep 2
-            done
-
+      # - run:
+      #     name: Wait for postgres
+      #     command: |
+      #       for i in `seq 1 30`; do
+      #         (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1 && break
+      #         echo "Postgres not up yet..."; sleep 2
+      #       done
       - run:
           name: Run getProductByIdTest
           command: >
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
-            -Dspring.datasource.username=postgres
-            -Dspring.datasource.password=qwerty123
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+            -Dspring.datasource.username=${POSTGRES_USER}
+            -Dspring.datasource.password=${POSTGRES_PASSWORD}
             test
       - run:
           name: Run validProductCreationTest
@@ -66,9 +65,9 @@ jobs:
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
-            -Dspring.datasource.username=postgres
-            -Dspring.datasource.password=qwerty123
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+            -Dspring.datasource.username=${POSTGRES_USER}
+            -Dspring.datasource.password=${POSTGRES_PASSWORD}
             test
       - run:
           name: Run invalidProductCreationTest
@@ -76,9 +75,9 @@ jobs:
             mvn -B -q
             -Dspring.profiles.active=test
             -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
-            -Dspring.datasource.username=postgres
-            -Dspring.datasource.password=qwerty123
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+            -Dspring.datasource.username=${POSTGRES_USER}
+            -Dspring.datasource.password=${POSTGRES_PASSWORD}
             test
 
   #3. Build Docker image -> Synk scan -> push to Docker Hub
