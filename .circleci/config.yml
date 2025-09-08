@@ -178,7 +178,7 @@ jobs:
               DATABASE_PASSWORD="$DB_PASS" \
               DATABASE_SSL=true \
               DATABASE_SSL_MODE=require \
-              -a sctp-simple-crm
+              -a $HEROKU_APP_NAME
             
             echo "Database configuration updated for Spring Boot"
 
