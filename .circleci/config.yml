@@ -195,7 +195,12 @@ workflows:
   ci_cd_pipeline:
     jobs:
       # Build Java app on both develop and release
-      - build
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+
       # - build:
       #     filters:
       #       branches:
