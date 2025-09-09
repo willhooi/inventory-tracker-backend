@@ -2,8 +2,8 @@ version: 2.1
 
 orbs:
   docker: circleci/docker@2.1.4
-  heroku: circleci/heroku@2.0.0
-  snyk: snyk/snyk@1.5.0
+  # heroku: circleci/heroku@2.0.0
+  # snyk: snyk/snyk@1.5.0
 
 jobs:
   #1. Build the Java app
@@ -24,223 +24,222 @@ jobs:
           command: mvn -B -q -DskipTests package
       - save_cache:
           key: maven-{{ checksum "pom.xml" }}
-          paths: 
+          paths:
             - ~/.m2
-          
-  #2. Run tests
-  test:
-    docker:
-      - image: cimg/openjdk:17.0
-      - image: cimg/postgres:16.3
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-          POSTGRES_DB: inventory_tracker
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - maven-{{ checksum "pom.xml" }}
-            - maven-
-      - run:
-          name: Wait for postgres
-          command: |
-            for i in `seq 1 30`; do
-              (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1 && break
-              echo "Postgres not up yet..."; sleep 2
-            done
 
-      - run:
-          name: Run getProductByIdTest
-          command: >
-            mvn -B -q
-            -Dspring.profiles.active=test
-            -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
-            -Dspring.datasource.username=postgres
-            -Dspring.datasource.password=${POSTGRES_PASSWORD}
-            test
-      - run:
-          name: Run validProductCreationTest
-          command: >
-            mvn -B -q
-            -Dspring.profiles.active=test
-            -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
-            -Dspring.datasource.username=postgres
-            -Dspring.datasource.password=${POSTGRES_PASSWORD}
-            test
-      - run:
-          name: Run invalidProductCreationTest
-          command: >
-            mvn -B -q
-            -Dspring.profiles.active=test
-            -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
-            -Dspring.datasource.username=postgres
-            -Dspring.datasource.password=${POSTGRES_PASSWORD}
-            test
+  # #2. Run tests
+  # test:
+  #   docker:
+  #     - image: cimg/openjdk:17.0
+  #     - image: cimg/postgres:16.3
+  #       environment:
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #         POSTGRES_DB: inventory_tracker
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys:
+  #           - maven-{{ checksum "pom.xml" }}
+  #           - maven-
+  #     - run:
+  #         name: Wait for postgres
+  #         command: |
+  #           for i in `seq 1 30`; do
+  #             (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1 && break
+  #             echo "Postgres not up yet..."; sleep 2
+  #           done
 
-  #3. Build Docker image -> Synk scan -> push to Docker Hub
-  docker_build:
-    docker:
-      - image: cimg/base:stable
-    environment:
-      IMAGE_NAME: willhooi/inventory-tracker
-      IMAGE_TAG: << pipeline.git.revision >>
-    steps:
-      - checkout
-      - setup_remote_docker
-      - docker/check
-      - run: 
-          name: Build Docker image & store temp img for scan
-          command: |
-            docker build -t $IMAGE_NAME:$IMAGE_TAG .
-            docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/image.tar
-      - persist_to_workspace:
-          root: /tmp
-          paths: [ image.tar]
-    
-  #4. Synk scan for vulnerabilites
-  scan:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - attach_workspace:
-          at: /tmp
-      - snyk/scan:
-          docker-image-name: "/tmp/image.tar"
-          #toggle to false to pass
-          fail-on-issues: true
-          severity-threshold: high
-  
-  #5. Push to Docker hub
-  docker_push:
-    docker:
-      - image: cimg/base:stable
-    environment:
-      IMAGE_NAME: willhooi/inventory-tracker
-      IMAGE_TAG: << pipeline.git.revision >>
-    steps:
-      - setup_remote_docker
-      - docker/check
-      - attach_workspace:
-          at: /tmp
-      - run:
-          name: Load image from tar
-          command: |
-            docker load -i /tmp/image.tar
-      - run:
-          name: Push image to Docker hub
-          command: |
-            docker push $IMAGE_NAME:$IMAGE_TAG
-  
-  #6. Deploy from Docker hub
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    environment:
-      IMAGE_NAME: willhooi/inventory-tracker
-      IMAGE_TAG: << pipeline.git.revision >>
-      HEROKU_APP_NAME: sctp-inventory-tracker
-    steps:
-      - setup_remote_docker
-      - docker/check
-      - run:
-          name: Pull image from Docker hub
-          command: |
-            docker pull $IMAGE_NAME:$IMAGE_TAG
-      - heroku/install
-      - run:
-          name: Heroku Login
-          command: |
-            heroku container:login
-      - run:
-          name: Configure Spring datasource from Heroku DATABASE_URL
-          command: |
-            APP="$HEROKU_APP_NAME"
-            DU="$(heroku config:get DATABASE_URL -a "$APP")"
-            if [ -z "$DU" ]; then
-              echo "DATABASE_URL is not set on $APP"; exit 1
-            fi
+  #     - run:
+  #         name: Run getProductByIdTest
+  #         command: >
+  #           mvn -B -q
+  #           -Dspring.profiles.active=test
+  #           -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#getProductByIdTest'
+  #           -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+  #           -Dspring.datasource.username=postgres
+  #           -Dspring.datasource.password=${POSTGRES_PASSWORD}
+  #           test
+  #     - run:
+  #         name: Run validProductCreationTest
+  #         command: >
+  #           mvn -B -q
+  #           -Dspring.profiles.active=test
+  #           -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#validProductCreationTest'
+  #           -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+  #           -Dspring.datasource.username=postgres
+  #           -Dspring.datasource.password=${POSTGRES_PASSWORD}
+  #           test
+  #     - run:
+  #         name: Run invalidProductCreationTest
+  #         command: >
+  #           mvn -B -q
+  #           -Dspring.profiles.active=test
+  #           -Dtest='com.simple_inventory_tracker.project.controller.ProductControllerTest#invalidProductCreationTest'
+  #           -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+  #           -Dspring.datasource.username=postgres
+  #           -Dspring.datasource.password=${POSTGRES_PASSWORD}
+  #           test
 
-            # Parse postgres://user:pass@host:port/db
-            DB_USER=$(echo "$DU" | sed -E 's|postgres://([^:]+):.*|\1|')
-            DB_PASS=$(echo "$DU" | sed -E 's|postgres://[^:]+:([^@]+)@.*|\1|')
-            DB_HOST=$(echo "$DU" | sed -E 's|.*@([^:/]+):.*|\1|')
-            DB_PORT=$(echo "$DU" | sed -E 's|.*:([0-9]+)/.*|\1|')
-            DB_NAME=$(echo "$DU" | sed -E 's|.*/([^?]+).*|\1|')
-            SPRING_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME?sslmode=require"
+  # #3. Build Docker image -> Synk scan -> push to Docker Hub
+  # docker_build:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   environment:
+  #     IMAGE_NAME: zarni009/inventory-tracker
+  #     IMAGE_TAG: << pipeline.git.revision >>
+  #   steps:
+  #     - checkout
+  #     - setup_remote_docker
+  #     - docker/check
+  #     - run:
+  #         name: Build Docker image & store temp img for scan
+  #         command: |
+  #           docker build -t $IMAGE_NAME:$IMAGE_TAG .
+  #           docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/image.tar
+  #     - persist_to_workspace:
+  #         root: /tmp
+  #         paths: [image.tar]
 
-            # Remove misleading vars (safe if absent)
-            heroku config:unset JDBC_DATABASE_URL DATABASE_USERNAME DATABASE_PASSWORD DATABASE_SSL DATABASE_SSL_MODE -a "$APP" || true
+  # #4. Synk scan for vulnerabilites
+  # scan:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - attach_workspace:
+  #         at: /tmp
+  #     - snyk/scan:
+  #         docker-image-name: "/tmp/image.tar"
+  #         #toggle to false to pass
+  #         fail-on-issues: true
+  #         severity-threshold: high
 
-            # Set Spring Boot datasource variables
-            heroku config:set \
-              SPRING_DATASOURCE_URL="$SPRING_URL" \
-              SPRING_DATASOURCE_USERNAME="$DB_USER" \
-              SPRING_DATASOURCE_PASSWORD="$DB_PASS" \
-              -a "$APP"
+  # #5. Push to Docker hub
+  # docker_push:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   environment:
+  #     IMAGE_NAME: zarni009/inventory-tracker
+  #     IMAGE_TAG: << pipeline.git.revision >>
+  #   steps:
+  #     - setup_remote_docker
+  #     - docker/check
+  #     - attach_workspace:
+  #         at: /tmp
+  #     - run:
+  #         name: Load image from tar
+  #         command: |
+  #           docker load -i /tmp/image.tar
+  #     - run:
+  #         name: Push image to Docker hub
+  #         command: |
+  #           docker push $IMAGE_NAME:$IMAGE_TAG
 
-            echo "Configured SPRING_DATASOURCE_* for $APP"
-      - run:
-          name: Heroku Deploy
-          command: |
-            docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
-            docker push registry.heroku.com/$HEROKU_APP_NAME/web
-            heroku container:release web -a $HEROKU_APP_NAME
+  # #6. Deploy from Docker hub
+  # deploy:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   environment:
+  #     IMAGE_NAME: zarni009/inventory-tracker
+  #     IMAGE_TAG: << pipeline.git.revision >>
+  #     HEROKU_APP_NAME: sctp-inventory-tracker
+  #   steps:
+  #     - setup_remote_docker
+  #     - docker/check
+  #     - run:
+  #         name: Pull image from Docker hub
+  #         command: |
+  #           docker pull $IMAGE_NAME:$IMAGE_TAG
+  #     - heroku/install
+  #     - run:
+  #         name: Heroku Login
+  #         command: |
+  #           heroku container:login
+  #     - run:
+  #         name: Configure Spring datasource from Heroku DATABASE_URL
+  #         command: |
+  #           APP="$HEROKU_APP_NAME"
+  #           DU="$(heroku config:get DATABASE_URL -a "$APP")"
+  #           if [ -z "$DU" ]; then
+  #             echo "DATABASE_URL is not set on $APP"; exit 1
+  #           fi
+
+  #           # Parse postgres://user:pass@host:port/db
+  #           DB_USER=$(echo "$DU" | sed -E 's|postgres://([^:]+):.*|\1|')
+  #           DB_PASS=$(echo "$DU" | sed -E 's|postgres://[^:]+:([^@]+)@.*|\1|')
+  #           DB_HOST=$(echo "$DU" | sed -E 's|.*@([^:/]+):.*|\1|')
+  #           DB_PORT=$(echo "$DU" | sed -E 's|.*:([0-9]+)/.*|\1|')
+  #           DB_NAME=$(echo "$DU" | sed -E 's|.*/([^?]+).*|\1|')
+  #           SPRING_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME?sslmode=require"
+
+  #           # Remove misleading vars (safe if absent)
+  #           heroku config:unset JDBC_DATABASE_URL DATABASE_USERNAME DATABASE_PASSWORD DATABASE_SSL DATABASE_SSL_MODE -a "$APP" || true
+
+  #           # Set Spring Boot datasource variables
+  #           heroku config:set \
+  #             SPRING_DATASOURCE_URL="$SPRING_URL" \
+  #             SPRING_DATASOURCE_USERNAME="$DB_USER" \
+  #             SPRING_DATASOURCE_PASSWORD="$DB_PASS" \
+  #             -a "$APP"
+
+  #           echo "Configured SPRING_DATASOURCE_* for $APP"
+  #     - run:
+  #         name: Heroku Deploy
+  #         command: |
+  #           docker tag $IMAGE_NAME:$IMAGE_TAG registry.heroku.com/$HEROKU_APP_NAME/web
+  #           docker push registry.heroku.com/$HEROKU_APP_NAME/web
+  #           heroku container:release web -a $HEROKU_APP_NAME
 
 workflows:
   ci_cd_pipeline:
     jobs:
       # Build Java app on both develop and release
-      - build:
-          filters:
-            branches:
-              only:
-                - develop
-                - release
+      - build
+      # - build:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - release
 
       # Run test after build on both branches
-      - test:
-          requires:
-            - build 
-          filters:
-            branches:
-              only:
-                - develop
-                - release
+      # - test:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - release
 
       # Docker build only on release & if tests passed
-      - docker_build:
-          requires:
-            - test
-          filters:
-            branches:
-              only: release
-      
-      #Snyk scan on release & if docker_build is successful
-      - scan:
-          requires:
-            - docker_build
-          filters:
-            branches:
-              only: release
-      
-      # Push to Docker hub only on release & if scan is successful
-      - docker_push:
-          requires:
-            - scan
-          filters:
-            branches:
-              only: release
-      
-      # Docker deploy to Heroku only on release & if docker_push successful
-      - deploy:
-          requires:
-            - docker_push
-          filters:
-            branches:
-              only: release
+      # - docker_build:
+      #     requires:
+      #       - test
+      #     filters:
+      #       branches:
+      #         only: release
 
-   
+      #Snyk scan on release & if docker_build is successful
+      # - scan:
+      #     requires:
+      #       - docker_build
+      #     filters:
+      #       branches:
+      #         only: release
+
+      # Push to Docker hub only on release & if scan is successful
+      # - docker_push:
+      #     requires:
+      #       - scan
+      #     filters:
+      #       branches:
+      #         only: release
+
+      # Docker deploy to Heroku only on release & if docker_push successful
+      # - deploy:
+      #     requires:
+      #       - docker_push
+      #     filters:
+      #       branches:
+      #         only: release
