@@ -197,7 +197,7 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - testcicd
 
       # - build:
       #     filters:
