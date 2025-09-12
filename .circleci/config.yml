@@ -206,7 +206,7 @@ jobs:
       - snyk/scan:
           fail-on-issues: true
           severity-threshold: high
-          snyk-args: --all-projects
+          additional-arguments: --all-projects
 
 workflows:
   ci_cd_pipeline:
