@@ -42,9 +42,13 @@ Most inventory apps today are built for large businesses - bloated with features
 - **SLF4J + Logback**: Structured logging for development and debugging
 
 ---
-
 ## ⚒️ DevOps
 
+<<<<<<< HEAD
+=======
+## ⚒️ DevOps
+
+>>>>>>> main
 - Start PostgreSQL in local machine:
     ```sudo service postgresql start```
 - Make changes to **develop** branch to run build & test jobs
@@ -53,4 +57,8 @@ Most inventory apps today are built for large businesses - bloated with features
 - If green build, use Postman to check endpoints
 
 
+<<<<<<< HEAD
+This project is a group collaboration (together with Zarni, Ernest & Andy) for the SCTP Software Engineering (Module 3 Java backend framework & API & Module 4 DevOps.)
+=======
 This project is a group collaboration (together with Zarni, Ernest & Andy) for the SCTP Software Engineering (Module 3 Java backend framework & API.)
+>>>>>>> main

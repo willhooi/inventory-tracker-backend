@@ -190,6 +190,24 @@ jobs:
             docker push registry.heroku.com/$HEROKU_APP_NAME/web
             heroku container:release web -a $HEROKU_APP_NAME
 
+  #7. SAST code scan
+  sast_scan:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - maven-{{ checksum "pom.xml" }}
+            - maven-
+      - run:
+          name: Download dependencies for Snyk
+          command: mvn -B -q dependency:go-offline
+      - snyk/scan:
+          fail-on-issues: true
+          severity-threshold: high
+          additional-arguments: --all-projects
+
 workflows:
   ci_cd_pipeline:
     jobs:
@@ -210,11 +228,22 @@ workflows:
               only:
                 - develop
                 - release
+      
+      # Run SAST scan after build on both branches, in parallel with test
+      - sast_scan:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+                - release
 
       # Docker build only on release & if tests passed
       - docker_build:
           requires:
             - test
+            - sast_scan
           filters:
             branches:
               only: release
