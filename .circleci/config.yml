@@ -80,6 +80,36 @@ jobs:
             -Dspring.datasource.username=postgres
             -Dspring.datasource.password=${POSTGRES_PASSWORD}
             test
+      - run:
+          name: Run getSupplierByIdTest
+          command: >
+            mvn -B -q
+            -Dspring.profiles.active=test
+            -Dtest='com.simple_inventory_tracker.project.controller.SupplierControllerTest#getSupplierByIdTest'
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+            -Dspring.datasource.username=postgres
+            -Dspring.datasource.password=${POSTGRES_PASSWORD}
+            test
+      - run:
+          name: Run getSupplierNotFoundTest  
+          command: >
+            mvn -B -q
+            -Dspring.profiles.active=test
+            -Dtest='com.simple_inventory_tracker.project.service.SupplierServiceImplTest#getSupplierNotFoundTest'
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+            -Dspring.datasource.username=postgres
+            -Dspring.datasource.password=${POSTGRES_PASSWORD}
+            test
+      - run:
+          name: Run adjustStockQuantitySuccessTest
+          command: >
+            mvn -B -q
+            -Dspring.profiles.active=test
+            -Dtest='com.simple_inventory_tracker.project.service.StockServiceImplTest#adjustStockQuantitySuccessTest'
+            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/inventory_tracker
+            -Dspring.datasource.username=postgres
+            -Dspring.datasource.password=${POSTGRES_PASSWORD}
+            test
 
   #3. Build Docker image -> Synk scan -> push to Docker Hub
   docker_build:

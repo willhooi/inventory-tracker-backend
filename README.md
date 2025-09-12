@@ -44,21 +44,10 @@ Most inventory apps today are built for large businesses - bloated with features
 ---
 ## ⚒️ DevOps
 
-<<<<<<< HEAD
-=======
-## ⚒️ DevOps
-
->>>>>>> main
-- Start PostgreSQL in local machine:
-    ```sudo service postgresql start```
 - Make changes to **develop** branch to run build & test jobs
 - Make changes to **release** branch to run build, test, docker_build, scan, docker_push and deploy jobs.
 - Check running jobs in CircleCI
 - If green build, use Postman to check endpoints
 
 
-<<<<<<< HEAD
 This project is a group collaboration (together with Zarni, Ernest & Andy) for the SCTP Software Engineering (Module 3 Java backend framework & API & Module 4 DevOps.)
-=======
-This project is a group collaboration (together with Zarni, Ernest & Andy) for the SCTP Software Engineering (Module 3 Java backend framework & API.)
->>>>>>> main

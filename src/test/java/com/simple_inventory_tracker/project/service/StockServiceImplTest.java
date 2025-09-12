@@ -54,4 +54,25 @@ public class StockServiceImplTest {
         });
     }
 
+    @Test
+    public void adjustStockQuantitySuccessTest() {
+        Product product = Product.builder().name("Test Product").build();
+        Stock stock = Stock.builder()
+                .quantityOnHand(50)
+                .reorderLevel(10)
+                .product(product)
+                .build();
+        Long stockId = 1L;
+        int adjustmentQuantity = -15;
+
+        Mockito.when(stockRepository.findById(stockId)).thenReturn(Optional.of(stock));
+        Mockito.when(stockRepository.save(Mockito.any(Stock.class))).thenReturn(stock);
+
+        Stock result = stockService.adjustStockQuantity(stockId, adjustmentQuantity);
+
+        Assertions.assertEquals(35, result.getQuantityOnHand());
+        Mockito.verify(stockRepository).findById(stockId);
+        Mockito.verify(stockRepository).save(stock);
+    }
+
 }
