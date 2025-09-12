@@ -73,13 +73,15 @@ public class StockServiceImpl implements StockService {
         Stock stock = stockRepository.findById(id)
                 .orElseThrow(() -> new StockNotFoundException(id));
 
-        int incrementAmount = updatedStock.getQuantityOnHand();
-        stock.setQuantityOnHand(stock.getQuantityOnHand() + incrementAmount);
+        int oldQuantity = stock.getQuantityOnHand();
+        int newQuantity = updatedStock.getQuantityOnHand();
+        
+        stock.setQuantityOnHand(newQuantity);
         stock.setReorderLevel(updatedStock.getReorderLevel());
         stock.setLastUpdate(LocalDateTime.now());
 
-        logger.info("UPDATE: Stock [id: {}] for product '{}' increased by {}, new qty: {}, reorder level: {}",
-                stock.getId(), stock.getProduct().getName(), incrementAmount, stock.getQuantityOnHand(),
+        logger.info("UPDATE: Stock [id: {}] for product '{}' updated from {} to {}, reorder level: {}",
+                stock.getId(), stock.getProduct().getName(), oldQuantity, newQuantity,
                 stock.getReorderLevel());
 
         return stockRepository.save(stock);

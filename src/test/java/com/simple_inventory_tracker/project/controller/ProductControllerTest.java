@@ -66,7 +66,7 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(savedProduct.getId()))
-                .andExpect(jsonPath("$.name").value("Ice-cream"))
+                .andExpect(jsonPath("$.name").value("WRONG_NAME")) // This will cause the test to fail
                 .andExpect(jsonPath("$.description").value("Dark Chocolate ice-cream (1l)"))
                 .andExpect(jsonPath("$.sku").value("ICR-888"))
                 .andExpect(jsonPath("$.price").value(7.85))

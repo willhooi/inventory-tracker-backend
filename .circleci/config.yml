@@ -200,6 +200,7 @@ workflows:
               only:
                 - develop
                 - release
+                - release-failtest
 
       # Run test after build on both branches
       - test:
@@ -210,6 +211,7 @@ workflows:
               only:
                 - develop
                 - release
+                - release-failtest
 
       # Docker build only on release & if tests passed
       - docker_build:
@@ -217,7 +219,9 @@ workflows:
             - test
           filters:
             branches:
-              only: release
+              only: 
+                - release
+                - release-failtest
       
       #Snyk scan on release & if docker_build is successful
       - scan:
@@ -225,7 +229,9 @@ workflows:
             - docker_build
           filters:
             branches:
-              only: release
+              only: 
+                - release
+                - release-failtest
       
       # Push to Docker hub only on release & if scan is successful
       - docker_push:
@@ -233,7 +239,9 @@ workflows:
             - scan
           filters:
             branches:
-              only: release
+              only: 
+                - release
+                - release-failtest
       
       # Docker deploy to Heroku only on release & if docker_push successful
       - deploy:
@@ -241,6 +249,8 @@ workflows:
             - docker_push
           filters:
             branches:
-              only: release
+              only: 
+                - release
+                - release-failtest
 
    
