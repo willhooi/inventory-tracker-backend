@@ -44,10 +44,38 @@ Most inventory apps today are built for large businesses - bloated with features
 ---
 ## ⚒️ DevOps
 
-- Make changes to **develop** branch to run build & test jobs
-- Make changes to **release** branch to run build, test, docker_build, scan, docker_push and deploy jobs.
-- Check running jobs in CircleCI
-- If green build, use Postman to check endpoints
+### CI/CD Pipeline Strategy
+
+This project implements a **branch-based CI/CD pipeline** using CircleCI with different behaviors for development and production environments:
+
+#### Branch Workflow
+- **`develop` branch**: Continuous Integration only (build → test → security scan)
+- **`release` branch**: Full CI/CD pipeline (build → test → security scan → containerize → deploy)
+
+#### Pipeline Stages
+
+**1. Build & Test (Both Branches)**
+- ☕ **Build**: Compiles Java 17 application using Maven with dependency caching
+- 🧪 **Test**: Runs 6 comprehensive unit tests against PostgreSQL 16.3 database
+- 🔒 **SAST Scan**: Static application security testing using Snyk (fails on high-severity issues)
+
+**2. Production Pipeline (Release Branch Only)**
+- 🐳 **Docker Build**: Creates containerized application tagged with git commit SHA
+- 🛡️ **Vulnerability Scan**: Snyk scans Docker image for container vulnerabilities
+- 📦 **Docker Push**: Publishes validated image to Docker Hub (`willhooi/inventory-tracker`)
+- 🚀 **Deploy**: Automated deployment to Heroku with database configuration
+
+#### Security Features
+- **Fail-fast approach**: Pipeline stops immediately on any failure
+- **Multi-layer scanning**: Both code (SAST) and container vulnerability scanning
+- **Branch protection**: Only `release` branch can deploy to production
+- **Secure credential management**: Environment variables for sensitive data
+
+#### Usage
+- Push to **`develop`** to validate changes (build, test, security scan)
+- Push to **`release`** to deploy to production (full pipeline)
+- Monitor pipeline status in CircleCI dashboard
+- Test deployed application endpoints using Postman
 
 
 This project is a group collaboration (together with Zarni, Ernest & Andy) for the SCTP Software Engineering (Module 3 Java backend framework & API & Module 4 DevOps.)
