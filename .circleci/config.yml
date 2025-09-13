@@ -24,9 +24,9 @@ jobs:
           command: mvn -B -q -DskipTests package
       - save_cache:
           key: maven-{{ checksum "pom.xml" }}
-          paths: 
+          paths:
             - ~/.m2
-          
+
   #2. Run tests
   test:
     docker:
@@ -91,7 +91,7 @@ jobs:
             -Dspring.datasource.password=${POSTGRES_PASSWORD}
             test
       - run:
-          name: Run getSupplierNotFoundTest  
+          name: Run getSupplierNotFoundTest
           command: >
             mvn -B -q
             -Dspring.profiles.active=test
@@ -122,15 +122,15 @@ jobs:
       - checkout
       - setup_remote_docker
       - docker/check
-      - run: 
+      - run:
           name: Build Docker image & store temp img for scan
           command: |
             docker build -t $IMAGE_NAME:$IMAGE_TAG .
             docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/image.tar
       - persist_to_workspace:
           root: /tmp
-          paths: [ image.tar]
-    
+          paths: [image.tar]
+
   #4. Synk scan for vulnerabilites
   scan:
     docker:
@@ -143,7 +143,7 @@ jobs:
           #toggle to false to pass
           fail-on-issues: true
           severity-threshold: high
-  
+
   #5. Push to Docker hub
   docker_push:
     docker:
@@ -164,7 +164,7 @@ jobs:
           name: Push image to Docker hub
           command: |
             docker push $IMAGE_NAME:$IMAGE_TAG
-  
+
   #6. Deploy from Docker hub
   deploy:
     docker:
@@ -252,13 +252,13 @@ workflows:
       # Run test after build on both branches
       - test:
           requires:
-            - build 
+            - build
           filters:
             branches:
               only:
                 - develop
                 - release
-      
+
       # Run SAST scan after build on both branches, in parallel with test
       - sast_scan:
           requires:
@@ -277,7 +277,7 @@ workflows:
           filters:
             branches:
               only: release
-      
+
       #Snyk scan on release & if docker_build is successful
       - scan:
           requires:
@@ -285,7 +285,7 @@ workflows:
           filters:
             branches:
               only: release
-      
+
       # Push to Docker hub only on release & if scan is successful
       - docker_push:
           requires:
@@ -293,8 +293,9 @@ workflows:
           filters:
             branches:
               only: release
-      
+
       # Docker deploy to Heroku only on release & if docker_push successful
+      # Test deploy
       - deploy:
           requires:
             - docker_push
